@@ -3,25 +3,24 @@ package com.sfg.beerworks.gateway.config;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
-@Component
-@Profile("!local-discovery")
-public class LocalHostRouteConfig {
-
+@Profile("local-discovery")
+@Configuration
+public class LoadBalancedRouteConfig {
     @Bean
-    public RouteLocator routeLocator(RouteLocatorBuilder builder){
-       return  builder.routes()
+    public RouteLocator loadBalancedRouteLocator(RouteLocatorBuilder builder){
+        return builder.routes()
                 .route("beer-service",r -> r
                         .path("/api/v1/beer/*","/api/v1/beer/beerUpc/*","/api/v1/beer*")
-                        .uri("http://localhost:8080"))
+                        .uri("lb://beer-service"))
                 .route("beer-order-service", spec -> spec
                         .path("/api/v1/customers**","/api/v1/customers/**")
-                        .uri("http://localhost:8081"))
-               .route("beer-inventory-service", spec -> spec
-                       .path("/api/v1/beer/*/inventory")
-                       .uri("http://localhost:8082"))
+                        .uri("lb://beer-order-service"))
+                .route("beer-inventory-service", spec -> spec
+                        .path("/api/v1/beer/*/inventory")
+                        .uri("lb://beer-inventory-service"))
                 .build();
     }
 }
