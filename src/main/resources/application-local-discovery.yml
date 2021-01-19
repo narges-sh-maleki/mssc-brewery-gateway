@@ -18,4 +18,9 @@ spring:
           uri: lb://beer-inventory-service
           predicates:
             - Path=/api/v1/beer/*/inventory
+            -
+        - id: inventory-failover
+          uri: lb://inventory-failover
+          predicates:
+            - Path=/inventory-failover
 
